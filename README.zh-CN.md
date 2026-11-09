@@ -26,6 +26,15 @@
 - **真正可用的打断功能。** 你打断它，它就停；简短的"嗯""对"不会打断它。
 - **有实测数据。** 真实的延迟数据，包括没达到的目标。
 
+## 工作原理
+
+<p align="center"><img src="assets/how-it-works.svg" alt="JARVIS 流程：麦克风、VAD、whisper.cpp、带工具的 Qwen3-8B、Kokoro TTS、扬声器，以及打断反馈" width="100%"></p>
+
+1. **聆听。** 始终开启的麦克风和唤醒词（"hey jarvis"）。语音活动模型和轮次模型判断你何时说完。
+2. **理解。** whisper.cpp 把语音转成文字；Qwen3-8B（llama.cpp）作答，并可调用已注册的工具。
+3. **说话。** 模型还在生成时，Kokoro 就逐句合成并播放。
+4. **随时可打断。** 你一开口，播放停止，模型请求被取消。简短的"嗯""对"不算。
+
 ## 实测结果
 在 Windows 11、AMD Radeon RX 6700 XT（12 GB，Vulkan）和 Ryzen 5 X3D 上测得。
 

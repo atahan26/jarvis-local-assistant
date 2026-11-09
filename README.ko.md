@@ -29,6 +29,15 @@
 - **제대로 동작하는 barge-in.** 끼어들면 멈추고, 짧은 "응", "음" 소리는 끊지 않습니다.
 - **주장이 아니라 측정값.** 달성하지 못한 목표를 포함한 실제 지연 시간입니다.
 
+## 작동 방식
+
+<p align="center"><img src="assets/how-it-works.svg" alt="JARVIS 파이프라인: 마이크, VAD, whisper.cpp, 도구를 쓰는 Qwen3-8B, Kokoro TTS, 스피커, barge-in 피드백" width="100%"></p>
+
+1. **듣기.** 항상 열려 있는 마이크와 호출어("hey jarvis"). 음성 활동 모델과 턴 모델이 말이 끝났는지 판단합니다.
+2. **이해하기.** whisper.cpp가 음성을 텍스트로 바꾸고, Qwen3-8B(llama.cpp)가 답하며 등록된 도구를 호출할 수 있습니다.
+3. **말하기.** 모델이 아직 쓰는 동안 Kokoro가 문장 단위로 읽어 줍니다.
+4. **끼어들 수 있게 유지.** 말을 겹치면 재생이 멈추고 모델 요청이 취소됩니다. 짧은 "응", "음"은 해당되지 않습니다.
+
 ## 측정 결과
 Windows 11, AMD Radeon RX 6700 XT(12GB, Vulkan), Ryzen 5 X3D에서 측정했습니다.
 

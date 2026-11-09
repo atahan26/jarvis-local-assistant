@@ -29,6 +29,15 @@ zamanlayıcı kurar, web'de arama yapar. Cümlesinin ortasında sözünü kesebi
 - **Çalışan barge-in.** Sözünü kesersen susar, kısa "evet" ve "hmm" sesleri onu kesmez.
 - **Ölçülmüş sonuçlar.** Gerçek gecikmeler, kaçırılan hedefler dahil.
 
+## Nasıl çalışır
+
+<p align="center"><img src="assets/how-it-works.svg" alt="JARVIS işlem hattı: mikrofon, VAD, whisper.cpp, araçlı Qwen3-8B, Kokoro TTS, hoparlör ve barge-in geri bildirimi" width="100%"></p>
+
+1. **Dinle.** Sürekli açık mikrofon ve bir uyandırma sözü ("hey jarvis"). Ses etkinliği ve tur modeli konuşmanı ne zaman bitirdiğini belirler.
+2. **Anla.** whisper.cpp konuşmayı metne çevirir; Qwen3-8B (llama.cpp) cevap verir ve kayıtlı araçları çağırabilir.
+3. **Konuş.** Model hâlâ yazarken Kokoro cevabı cümle cümle seslendirir.
+4. **Kesilebilir kal.** Üstüne konuşursan ses durur ve model isteği iptal edilir. Kısa "evet" ve "hmm" sayılmaz.
+
 ## Ölçülen sonuçlar
 AMD Radeon RX 6700 XT (12 GB, Vulkan) ve Ryzen 5 X3D ile Windows 11'de ölçüldü.
 

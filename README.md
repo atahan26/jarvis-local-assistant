@@ -34,11 +34,12 @@ You can interrupt it mid-sentence (barge-in) and it stops in about 22 ms.
 
 ## How it works
 
-```
-mic -> VAD -> turn detection -> whisper.cpp -> llama-server (tools) -> Kokoro TTS -> speakers
-         ^                                                                             |
-         +------------------------------ barge-in (stops audio, cancels LLM) <----------+
-```
+<p align="center"><img src="assets/how-it-works.svg" alt="JARVIS pipeline: microphone, VAD, whisper.cpp, Qwen3-8B with tools, Kokoro TTS, speakers, with barge-in feedback" width="100%"></p>
+
+1. **Listen.** An always-open microphone stream and a wake word ("hey jarvis"). A voice-activity model and a turn model decide when you have finished.
+2. **Understand.** whisper.cpp turns speech into text; Qwen3-8B (llama.cpp) answers and can call registered tools.
+3. **Speak.** Kokoro streams the reply sentence by sentence while the model is still writing.
+4. **Stay interruptible.** If you talk over it, playback stops and the model request is cancelled. Short "yeah" and "mhm" do not count.
 
 ## Measured results
 
