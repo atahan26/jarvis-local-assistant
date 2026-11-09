@@ -1,69 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-label="JARVIS pipeline: microphone, voice activity detection, whisper.cpp, Qwen3 on llama.cpp with tools, Kokoro text to speech, speakers, with barge-in feedback">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#070B12"/><stop offset="1" stop-color="#0F1B2B"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#6366F1"/>
-    </linearGradient>
     <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#22D3EE"/>
+      <path d="M0 0 L10 5 L0 10 z" fill="#1E1E1C"/>
     </marker>
-    <marker id="arrw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#F59E0B"/>
+    <marker id="arra" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#B5451B"/>
     </marker>
   </defs>
-  <rect width="960" height="400" rx="24" fill="url(#bg)"/>
+  <rect width="960" height="400" rx="16" fill="#F5F2EB"/>
 
   <!-- barge-in feedback -->
-  <g fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-dasharray="7 6">
-    <path d="M249 140 V92 H711 V136" marker-end="url(#arrw)"/>
-    <path d="M557 92 V136" marker-end="url(#arrw)"/>
+  <g fill="none" stroke="#B5451B" stroke-width="2.5" stroke-dasharray="7 6">
+    <path d="M249 140 V92 H711 V136" marker-end="url(#arra)"/>
+    <path d="M557 92 V136" marker-end="url(#arra)"/>
   </g>
-  <text x="480" y="76" text-anchor="middle" fill="#F59E0B" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" textLength="640" lengthAdjust="spacingAndGlyphs">barge-in: you speak, audio stops in 22 ms, the LLM request is cancelled in under 40 ms</text>
+  <text x="480" y="76" text-anchor="middle" fill="#B5451B" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" textLength="640" lengthAdjust="spacingAndGlyphs">barge-in: you speak, audio stops in 22 ms, the LLM request is cancelled in under 40 ms</text>
 
   <!-- pipeline boxes -->
   <g font-family="Segoe UI, Helvetica, Arial, sans-serif" text-anchor="middle">
     <g transform="translate(31,140)">
-      <rect width="128" height="96" rx="14" fill="#122033" stroke="#2B3A4A" stroke-width="2"/>
-      <text x="64" y="38" fill="#FFFFFF" font-size="16" font-weight="700">Microphone</text>
-      <text x="64" y="60" fill="#9FB0C3" font-size="12.5">always-open capture</text>
-      <text x="64" y="78" fill="#9FB0C3" font-size="12.5">wake word</text>
+      <rect width="128" height="96" rx="10" fill="#FFFFFF" stroke="#CFC8B8" stroke-width="2"/>
+      <text x="64" y="38" fill="#1E1E1C" font-size="16" font-weight="700">Microphone</text>
+      <text x="64" y="60" fill="#6A665D" font-size="12.5">always-open capture</text>
+      <text x="64" y="78" fill="#6A665D" font-size="12.5">wake word</text>
     </g>
     <g transform="translate(185,140)">
-      <rect width="128" height="96" rx="14" fill="#122033" stroke="#2B3A4A" stroke-width="2"/>
-      <text x="64" y="38" fill="#FFFFFF" font-size="16" font-weight="700">VAD</text>
-      <text x="64" y="60" fill="#9FB0C3" font-size="12.5">Silero + turn model</text>
-      <text x="64" y="78" fill="#9FB0C3" font-size="12.5">knows when you stop</text>
+      <rect width="128" height="96" rx="10" fill="#FFFFFF" stroke="#CFC8B8" stroke-width="2"/>
+      <text x="64" y="38" fill="#1E1E1C" font-size="16" font-weight="700">VAD</text>
+      <text x="64" y="60" fill="#6A665D" font-size="12.5">Silero + turn model</text>
+      <text x="64" y="78" fill="#6A665D" font-size="12.5">knows when you stop</text>
     </g>
     <g transform="translate(339,140)">
-      <rect width="128" height="96" rx="14" fill="#122033" stroke="#22D3EE" stroke-width="2"/>
-      <text x="64" y="38" fill="#FFFFFF" font-size="16" font-weight="700">whisper.cpp</text>
-      <text x="64" y="60" fill="#9FB0C3" font-size="12.5">speech to text</text>
-      <text x="64" y="78" fill="#22D3EE" font-size="12.5" font-weight="600">~640 ms</text>
+      <rect width="128" height="96" rx="10" fill="#FFFFFF" stroke="#CFC8B8" stroke-width="2"/>
+      <text x="64" y="38" fill="#1E1E1C" font-size="16" font-weight="700">whisper.cpp</text>
+      <text x="64" y="60" fill="#6A665D" font-size="12.5">speech to text</text>
+      <text x="64" y="78" fill="#B5451B" font-size="12.5" font-weight="600">~640 ms</text>
     </g>
     <g transform="translate(493,140)">
-      <rect width="128" height="96" rx="14" fill="#122033" stroke="#6366F1" stroke-width="2.5"/>
-      <text x="64" y="38" fill="#FFFFFF" font-size="16" font-weight="700">Qwen3-8B</text>
-      <text x="64" y="60" fill="#9FB0C3" font-size="12.5">llama.cpp, tool calls</text>
-      <text x="64" y="78" fill="#22D3EE" font-size="12" font-weight="600" textLength="108" lengthAdjust="spacingAndGlyphs">125-141 ms first token</text>
+      <rect width="128" height="96" rx="10" fill="#FFFFFF" stroke="#1E1E1C" stroke-width="2.5"/>
+      <text x="64" y="38" fill="#1E1E1C" font-size="16" font-weight="700">Qwen3-8B</text>
+      <text x="64" y="60" fill="#6A665D" font-size="12.5">llama.cpp, tool calls</text>
+      <text x="64" y="78" fill="#B5451B" font-size="12" font-weight="600" textLength="108" lengthAdjust="spacingAndGlyphs">125-141 ms first token</text>
     </g>
     <g transform="translate(647,140)">
-      <rect width="128" height="96" rx="14" fill="#122033" stroke="#22D3EE" stroke-width="2"/>
-      <text x="64" y="38" fill="#FFFFFF" font-size="16" font-weight="700">Kokoro TTS</text>
-      <text x="64" y="60" fill="#9FB0C3" font-size="12.5">streams sentence by</text>
-      <text x="64" y="78" fill="#9FB0C3" font-size="12.5">sentence</text>
+      <rect width="128" height="96" rx="10" fill="#FFFFFF" stroke="#CFC8B8" stroke-width="2"/>
+      <text x="64" y="38" fill="#1E1E1C" font-size="16" font-weight="700">Kokoro TTS</text>
+      <text x="64" y="60" fill="#6A665D" font-size="12.5">streams sentence by</text>
+      <text x="64" y="78" fill="#6A665D" font-size="12.5">sentence</text>
     </g>
     <g transform="translate(801,140)">
-      <rect width="128" height="96" rx="14" fill="#122033" stroke="#2B3A4A" stroke-width="2"/>
-      <text x="64" y="38" fill="#FFFFFF" font-size="16" font-weight="700">Speakers</text>
-      <text x="64" y="60" fill="#9FB0C3" font-size="12.5">flushable queue</text>
-      <text x="64" y="78" fill="#9FB0C3" font-size="12.5">headphones advised</text>
+      <rect width="128" height="96" rx="10" fill="#FFFFFF" stroke="#CFC8B8" stroke-width="2"/>
+      <text x="64" y="38" fill="#1E1E1C" font-size="16" font-weight="700">Speakers</text>
+      <text x="64" y="60" fill="#6A665D" font-size="12.5">flushable queue</text>
+      <text x="64" y="78" fill="#6A665D" font-size="12.5">headphones advised</text>
     </g>
   </g>
 
   <!-- forward arrows -->
-  <g stroke="#22D3EE" stroke-width="2.5" fill="none">
+  <g stroke="#1E1E1C" stroke-width="2" fill="none">
     <path d="M159 188 H181" marker-end="url(#arr)"/>
     <path d="M313 188 H335" marker-end="url(#arr)"/>
     <path d="M467 188 H489" marker-end="url(#arr)"/>
@@ -72,13 +66,13 @@
   </g>
 
   <!-- tools -->
-  <path d="M557 236 V282" stroke="#6366F1" stroke-width="2.5" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <path d="M557 236 V282" stroke="#1E1E1C" stroke-width="2" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
   <g font-family="Segoe UI, Helvetica, Arial, sans-serif" text-anchor="middle">
-    <rect x="277" y="284" width="560" height="58" rx="14" fill="#16203A" stroke="#6366F1" stroke-width="2"/>
-    <text x="557" y="308" fill="#FFFFFF" font-size="15" font-weight="700">11 allowlisted tools on your PC</text>
-    <text x="557" y="328" fill="#9FB0C3" font-size="12" textLength="500" lengthAdjust="spacingAndGlyphs">apps and websites · volume · hotkeys · Discord · timers · clipboard · search · memory</text>
+    <rect x="277" y="284" width="560" height="58" rx="10" fill="#FFFFFF" stroke="#1E1E1C" stroke-width="2"/>
+    <text x="557" y="308" fill="#1E1E1C" font-size="15" font-weight="700">11 allowlisted tools on your PC</text>
+    <text x="557" y="328" fill="#6A665D" font-size="12" textLength="500" lengthAdjust="spacingAndGlyphs">apps and websites · volume · hotkeys · Discord · timers · clipboard · search · memory</text>
   </g>
 
   <!-- footer -->
-  <text x="480" y="378" text-anchor="middle" fill="#22D3EE" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" textLength="640" lengthAdjust="spacingAndGlyphs">Everything runs on your PC. Network only for web search, the location lookup and setup downloads.</text>
+  <text x="480" y="378" text-anchor="middle" fill="#6A665D" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" textLength="640" lengthAdjust="spacingAndGlyphs">Everything runs on your PC. Network only for web search, the location lookup and setup downloads.</text>
 </svg>
