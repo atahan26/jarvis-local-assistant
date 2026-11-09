@@ -1,0 +1,276 @@
+# JARVIS configuration.
+#
+# Spec §12: this file is authoritative for every threshold. Tuning is empirical.
+# Do not hardcode any of these values in Python.
+#
+# Copy to config.local.yaml to override without touching version control;
+# config.local.yaml is gitignored and is deep-merged over this file if present.
+
+paths:
+  # Kept off OneDrive on purpose: bin/ + models/ is ~6.5 GB and OneDrive would
+  # sync all of it. Repoint this anywhere with fast local disk.
+  data_dir: "C:/jarvis-data"
+  # All of the below are resolved relative to data_dir unless absolute.
+  bin_dir: "bin"
+  models_dir: "models"
+  downloads_dir: "downloads"
+  # Logs stay next to the source so they are easy to find while debugging M5.
+  log_dir: "logs"
+
+# ---------------------------------------------------------------------------
+# STT: whisper.cpp HTTP server (spec §5)
+# ---------------------------------------------------------------------------
+whisper:
+  host: "127.0.0.1"
+  port: 8081
+  # Path relative to bin_dir.
+  exe: "whisper/whisper-server.exe"
+  # Path relative to models_dir. small.en is spec §3's choice.
+  # ggml-base.en-q5_1.bin is also downloaded: it is ~2x faster at every
+  # audio_ctx (503 ms vs 1062 ms at -ac 768) and scored identically on clean
+  # synthesized fixtures, but small.en is the more robust model on a real
+  # microphone in a real room. Swap the line below to try it.
+  model: "ggml-small.en-q5_1.bin"
+  # 5800X3D is 8c/16t. The LLM lives on the GPU, so whisper gets real cores.
+  # NOTE: upstream whisper.cpp ships no prebuilt Windows Vulkan binary (verified
+  # across every release v1.5.0..v1.9.2), so this is the CPU/OpenBLAS build.
+  # Revisit with a source Vulkan build if M1 misses the ~300ms budget.
+  threads: 8
+  language: "en"
+  startup_timeout_s: 60
+  # Proper nouns whisper would otherwise mangle, fed to it as an initial prompt.
+  # Measured: "My name is Atahan" transcribed as "My name is Adehan", and
+  # "Atahan here" as "add a hand here"; both correct once the name is listed.
+  # App names, the wake phrase, and capitalised words already in memory are
+  # added automatically, so put anything else you say often here: other people's
+  # names, game titles, your street.
+  vocabulary: []   # add names whisper mishears, for example your own
+  # -ac / --audio-ctx. Whisper's encoder always runs over a full 30s mel window,
+  # so STT cost is FLAT regardless of utterance length: a 1s "mute Discord" costs
+  # the same as a 4s sentence. Shrinking the window is the main latency lever,
+  # but it also caps how much audio the encoder can see (roughly ac/1500 * 30s,
+  # so 768 ~ 15s, 512 ~ 10s, 256 ~ 5s) and longer utterances get mangled.
+  #
+  # Measured at M1 on Kokoro speech, 5 fixtures from 1.0s to 11.0s, warmed,
+  # avg latency / worst similarity on the 11s fixture:
+  #
+  #                      small.en            base.en
+  #     default        1912 ms / 0.98      737 ms / 0.98
+  #     -ac 768        1062 ms / 0.98      503 ms / 0.98
+  #     -ac 512         837 ms / 0.77      453 ms / 0.81
+  #     -ac 384        1116 ms / 0.77        (anomalous, avoid)
+  #     -ac 256         622 ms / 0.53     1291 ms / 0.53
+  #
+  # 768 is the sweet spot: it halves latency with NO measured accuracy loss at
+  # any utterance length. 512 and below start truncating long utterances, and
+  # the sub-512 timings are erratic because the encoder starts re-segmenting.
+  # 0 = whisper default (full 30s window).
+  audio_ctx: 768
+
+# ---------------------------------------------------------------------------
+# LLM: llama.cpp server, Vulkan backend, OpenAI-compatible (spec §5)
+# ---------------------------------------------------------------------------
+llm:
+  host: "127.0.0.1"
+  port: 8080
+  exe: "llama/llama-server.exe"
+  model: "Qwen3-8B-Q4_K_M.gguf"
+  n_gpu_layers: 999      # -ngl: must offload everything; verified at startup
+  context_size: 16384    # -c
+  # -fa takes a value in current llama.cpp builds (on|off|auto). Spec §5 shows a
+  # bare -fa, which build b10269 rejects with "expected value for argument".
+  flash_attn: "on"
+  cache_type_k: "q8_0"
+  cache_type_v: "q8_0"
+  # Fail M0 loudly rather than silently running on CPU.
+  require_gpu: true
+  startup_timeout_s: 180
+  # -lv N. The default threshold of 3 suppresses the "offloaded N/M layers to
+  # GPU" and "Vulkan0 model buffer size" lines, which are the only proof that
+  # -ngl actually did anything. 4 surfaces them; 5 adds ~2600 lines of per-layer
+  # debug spam per start.
+  log_verbosity: 4
+  # Sampling (used from M2 onward)
+  temperature: 0.7
+  top_p: 0.8
+  max_tokens: 512
+  # Qwen3 hybrid reasoning: thinking tokens destroy TTFT in a voice loop.
+  # Measured on this box with a 200-token cap: thinking ON never emitted a single
+  # word of answer (981 chars of reasoning, no content); thinking OFF gave
+  # TTFT 531 ms and a complete answer in 1046 ms.
+  # run.ps1 maps this to llama-server's `--reasoning on|off`.
+  enable_thinking: false
+
+# ---------------------------------------------------------------------------
+# TTS: Kokoro-82M on CPU (spec §3)
+# ---------------------------------------------------------------------------
+tts:
+  model: "kokoro/kokoro-v1.0.onnx"
+  voices: "kokoro/voices-v1.0.bin"
+  voice: "af_heart"
+  speed: 1.0
+  sample_rate: 24000
+  # Never synthesize a whole response as one blob. The queue must stay flushable
+  # inside 60ms (spec §7.3).
+  #
+  # This also bounds how long a barge-in can be stalled. Kokoro's create() cannot
+  # be cancelled and is lock-serialized, so a chunk caught mid-synthesis when the
+  # user interrupts runs to completion before anything else can be synthesized.
+  # Measured worst-case synthesis for one chunk:
+  #     60 chars 1250ms | 80 chars 1391ms | 100 chars 1657ms | 120+ chars 2391ms
+  # (120, 150 and 180 all collapse to the same chunking here, because sentence
+  # boundaries land before the limit does.)
+  # 100 keeps the worst case under ~1.7s for one extra chunk per reply.
+  max_chunk_chars: 100
+  # The first chunk is what the user waits for, so it is kept much shorter.
+  # Kokoro on CPU has a hard floor of roughly 300 ms no matter how short the
+  # text, and grows from there. Measured (synth time for the whole chunk):
+  #     5 chars 312ms | 11 chars 390ms | 28 chars 593ms | 51 chars 797ms
+  #     73 chars 1094ms | 116 chars 1610ms | 196 chars 2906ms
+  # So spec §3's 150 ms first-audio budget is NOT reachable with Kokoro on CPU.
+  # 60 chars lands around 850 ms standalone; in the real loop TTS overlaps LLM
+  # generation, so perceived delay is lower than this number suggests.
+  first_chunk_chars: 60
+
+# ---------------------------------------------------------------------------
+# Audio I/O
+# ---------------------------------------------------------------------------
+audio:
+  input_sample_rate: 16000
+  frame_ms: 20
+  channels: 1
+  input_device: null    # null = system default; set to a sounddevice index or name
+  # null = the system default output, but resolved on the LOWEST-LATENCY host API
+  # that offers it rather than whatever PortAudio picks. PortAudio defaults to
+  # MME on Windows, whose ~192 ms buffer keeps playing after a flush and makes
+  # the 60 ms barge-in budget in §7.3 impossible. WASAPI measures ~22 ms.
+  output_device: null
+  # WASAPI shared mode only accepts the device's native rate, so Kokoro's 24 kHz
+  # is resampled to match (soxr, ~0.3 ms per second of audio). null = detect.
+  output_sample_rate: null
+  output_blocksize: 256
+
+# ---------------------------------------------------------------------------
+# Turn taking: the actual project (spec §7). Every value here will be tuned
+# against the real microphone at M5.
+# ---------------------------------------------------------------------------
+turn:
+  vad_threshold: 0.5
+  # §7.2: 700ms, not the 500ms most tutorials use.
+  base_silence_ms: 700
+  # Extended up to this ceiling when SmartTurn says the turn is incomplete.
+  max_wait_ms: 3000
+  # Speech shorter than this is not treated as a turn at all.
+  min_speech_ms: 200
+  smart_turn_enabled: true
+  # SmartTurn costs 125-200ms per call and runs on the capture thread. Probing
+  # every frame meant 125ms of inference per 32ms of audio, so the mic queue
+  # backed up and one real session recorded a 9.3s wait on a 3s ceiling. Probe
+  # at base_silence, then at most this often.
+  smart_turn_interval_ms: 300
+  # §7.5: after a response, listen this long before requiring the wake word again.
+  follow_up_window_ms: 8000
+  # Whisper writes these several ways, so list the variants rather than relying
+  # on clever matching. "Mm-hmm" normalizes to the two tokens "mm" and "hmm",
+  # and a real session turned it into a whole turn because "hmm" was missing.
+  backchannel_phrases:
+    ["mhm", "mm", "hmm", "mhmm", "mm hmm", "uh huh", "uh hmm", "huh",
+     "yeah", "yep", "yup", "okay", "ok", "alright", "right", "sure",
+     "got it", "gotcha", "i see", "aha", "ah"]
+
+barge_in:
+  enabled: true
+  # §7.1: headphones are the supported configuration. Set to "speakers" to enable
+  # the degraded self-triggering guard below. This is a heuristic, not real AEC.
+  echo_mode: "headphones"   # headphones | speakers
+  speakers:
+    vad_threshold: 0.6
+    sustained_speech_ms: 250
+    energy_threshold_dbfs: -35.0
+
+  # How long speech must persist during assistant playback before it counts as a
+  # confirmed barge-in and the audio is cut.
+  #
+  # This is the backchannel mechanism, and it exists because SmartTurn does NOT
+  # do what spec §3 claims. Measured directly: SmartTurn labels "yeah", "okay",
+  # "right" and "actually stop" all COMPLETE. It answers "is this utterance
+  # grammatically finished", not "did the user mean to take the floor".
+  #
+  # So the discriminator is duration instead. A backchannel is a quick noise
+  # (measured 0.4-0.8s) that stops on its own; a real interruption keeps going.
+  # Speech that ends before confirm_ms never cuts the audio at all, which is what
+  # §10 requires ("assistant continues speaking"). Speech still going at
+  # confirm_ms is confirmed, and the flush that follows is the number judged
+  # against the 60ms budget.
+  #
+  # Raise this if it interrupts itself on your "mhm"; lower it if real
+  # interruptions feel sluggish.
+  confirm_ms: 350
+  # A confirmed barge-in is additionally vetoed if the transcript turns out to be
+  # nothing but backchannel words (turn.backchannel_phrases). Costs one STT call
+  # but never delays the flush, since it runs after the audio has already stopped.
+  transcript_veto: true
+  # Hard budgets from §3; breaching these is logged as a metric violation.
+  tts_flush_budget_ms: 60
+  llm_cancel_budget_ms: 40
+
+wake_word:
+  # §7.5: the wake word is required in IDLE only. After a reply the assistant
+  # stays in an open follow-up window (turn.follow_up_window_ms) so a
+  # back-and-forth does not need "hey Jarvis" every single turn.
+  # Set false to skip IDLE entirely and always listen, which is how M1-M5 behaved.
+  enabled: true
+  model: "hey_jarvis"
+  # Measured peak scores with the ONNX model: "Hey Jarvis" 0.994, same phrase in
+  # another voice 0.971, unrelated speech and silence 0.000, a bare "Jarvis"
+  # 0.480. 0.5 separates them cleanly; raise it if the room is noisy.
+  threshold: 0.5
+  # Path relative to models_dir. Deliberately NOT the openwakeword package
+  # default, which lives inside .venv/Lib/site-packages and is destroyed
+  # whenever the venv is rebuilt.
+  models_dir: "openwakeword"
+  # The score stays high for several frames after the phrase; without a
+  # refractory period one "hey Jarvis" fires repeatedly.
+  refractory_ms: 2000
+  # Audio kept while asleep and replayed into the turn once the phrase fires.
+  # Detection latency is variable and worsens as the score drops: a clean 0.99
+  # fires ~40ms after the phrase ends, but a real-microphone 0.82 fires much
+  # later, by which point several words of the request are already gone. Without
+  # this the transcript starts mid-sentence ("about the Roman Empire" instead of
+  # "what do you think about the Roman Empire"). The wake phrase is replayed too
+  # and removed from the transcript afterwards.
+  preroll_ms: 1500
+
+# ---------------------------------------------------------------------------
+# Tools (M7/M8, spec §8)
+# ---------------------------------------------------------------------------
+tools:
+  enabled: true
+  # §8.1: an 8B model starts inventing arguments past roughly 10-15 tools.
+  # Registry.schemas() refuses to build beyond this rather than degrading
+  # quietly; an intent-router pre-filter is the fix when that day comes.
+  max_exposed: 15
+  # §8.1: destructive actions (closing an app) are gated behind a spoken yes.
+  # Anything that is not clearly a yes counts as a no.
+  require_confirmation_default: true
+  # §7.4: a tool in flight when the user interrupts keeps running.
+  finish_on_interrupt: true
+
+# ---------------------------------------------------------------------------
+# Long-term memory (not in the spec; facts that outlive a session)
+# ---------------------------------------------------------------------------
+memory:
+  enabled: true
+  # Relative to data_dir, so it lives with the models rather than in OneDrive.
+  file: "memory.json"
+  # Facts are injected into the system prompt on every request, so this is a
+  # per-turn cost, not just disk. See MAX_FACTS in src/tools/memory.py.
+
+# ---------------------------------------------------------------------------
+# Logging / metrics (spec §7.6)
+# ---------------------------------------------------------------------------
+logging:
+  level: "INFO"
+  # M5 needs timestamped VAD/turn/flush/cancel events. Flip to DEBUG there.
+  turn_events: true
+  metrics_file: "metrics.jsonl"

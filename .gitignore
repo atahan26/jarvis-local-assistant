@@ -1,0 +1,15 @@
+.venv/
+bin/
+models/
+logs/
+*.gguf
+*.onnx
+*.bin
+*.zip
+__pycache__/
+*.pyc
+.env
+config.local.yaml
+
+.venv/
+data/

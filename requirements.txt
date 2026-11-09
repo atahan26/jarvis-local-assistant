@@ -1,0 +1,44 @@
+# JARVIS: Python dependencies. Everything installs into .venv, never system Python.
+#
+# Versions below were verified against PyPI on 2026-08-04. Notes where the spec
+# (JARVIS_SPEC.md §4) is out of date with the current releases:
+#
+#  * pipecat-ai no longer publishes a `silero` extra. Silero VAD lives in the core
+#    package now (onnxruntime is a core dependency). The spec's
+#    `pipecat-ai[silero,local]` would silently install nothing extra for VAD.
+#  * pipecat-ai 1.7.0 pins `onnxruntime~=1.24.3`. Do NOT add a bare `onnxruntime`
+#    line here; it resolves to 1.28.x and conflicts.
+#  * The `local-smart-turn` extra pulls torch + torchaudio + transformers +
+#    coremltools (~2GB), not the pure-ONNX model the spec assumed. It is
+#    deliberately deferred to M5 so it cannot block earlier milestones.
+#  * The `whisper` extra is faster-whisper / CTranslate2, banned by spec §0 on
+#    this hardware. Never add it.
+
+pipecat-ai[local,kokoro]==1.7.0
+
+# Audio I/O (spec §3: sounddevice/PortAudio, not pipecat's pyaudio default)
+sounddevice==0.5.5
+
+# TTS
+kokoro-onnx==0.5.0
+
+# Wake word (M6)
+openwakeword==0.6.0
+
+# HTTP clients for whisper-server and llama-server
+httpx==0.28.1
+
+# Config / env
+PyYAML==6.0.3
+python-dotenv==1.2.2
+pydantic==2.13.4
+
+# Tool layer (M7/M8): Windows control surface, spec §8.2
+pywinauto==0.6.9
+uiautomation==2.0.29
+pynput==1.8.2
+psutil==7.2.2
+pycaw==20251023
+comtypes==1.4.16
+pyperclip==1.11.0
+ddgs==9.14.4
