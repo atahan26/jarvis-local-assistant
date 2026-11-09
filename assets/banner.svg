@@ -23,5 +23,5 @@
   </g>
   <text x="330" y="140" fill="#FFFFFF" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="76" font-weight="700" letter-spacing="4">JARVIS</text>
   <text x="332" y="190" fill="url(#accent)" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="32" font-weight="600">Local. Private. Controls your PC.</text>
-  <text x="332" y="232" fill="#9FB0C3" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20">Voice assistant with barge-in, running entirely on your own machine</text>
+  <text x="332" y="232" fill="#9FB0C3" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" textLength="580" lengthAdjust="spacingAndGlyphs">Voice assistant with barge-in, running entirely on your own machine</text>
 </svg>

@@ -20,7 +20,7 @@
     <path d="M249 140 V92 H711 V136" marker-end="url(#arrw)"/>
     <path d="M557 92 V136" marker-end="url(#arrw)"/>
   </g>
-  <text x="480" y="76" text-anchor="middle" fill="#F59E0B" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="600">barge-in: you speak, audio stops in 22 ms, the LLM request is cancelled in under 40 ms</text>
+  <text x="480" y="76" text-anchor="middle" fill="#F59E0B" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" textLength="640" lengthAdjust="spacingAndGlyphs">barge-in: you speak, audio stops in 22 ms, the LLM request is cancelled in under 40 ms</text>
 
   <!-- pipeline boxes -->
   <g font-family="Segoe UI, Helvetica, Arial, sans-serif" text-anchor="middle">
@@ -46,7 +46,7 @@
       <rect width="128" height="96" rx="14" fill="#122033" stroke="#6366F1" stroke-width="2.5"/>
       <text x="64" y="38" fill="#FFFFFF" font-size="16" font-weight="700">Qwen3-8B</text>
       <text x="64" y="60" fill="#9FB0C3" font-size="12.5">llama.cpp, tool calls</text>
-      <text x="64" y="78" fill="#22D3EE" font-size="12.5" font-weight="600">125-141 ms first token</text>
+      <text x="64" y="78" fill="#22D3EE" font-size="12" font-weight="600" textLength="108" lengthAdjust="spacingAndGlyphs">125-141 ms first token</text>
     </g>
     <g transform="translate(647,140)">
       <rect width="128" height="96" rx="14" fill="#122033" stroke="#22D3EE" stroke-width="2"/>
@@ -74,11 +74,11 @@
   <!-- tools -->
   <path d="M557 236 V282" stroke="#6366F1" stroke-width="2.5" fill="none" marker-start="url(#arr)" marker-end="url(#arr)"/>
   <g font-family="Segoe UI, Helvetica, Arial, sans-serif" text-anchor="middle">
-    <rect x="337" y="284" width="440" height="54" rx="14" fill="#16203A" stroke="#6366F1" stroke-width="2"/>
+    <rect x="277" y="284" width="560" height="58" rx="14" fill="#16203A" stroke="#6366F1" stroke-width="2"/>
     <text x="557" y="308" fill="#FFFFFF" font-size="15" font-weight="700">11 allowlisted tools on your PC</text>
-    <text x="557" y="327" fill="#9FB0C3" font-size="12.5">apps and websites · volume · hotkeys · Discord · timers · clipboard · search · memory</text>
+    <text x="557" y="328" fill="#9FB0C3" font-size="12" textLength="500" lengthAdjust="spacingAndGlyphs">apps and websites · volume · hotkeys · Discord · timers · clipboard · search · memory</text>
   </g>
 
   <!-- footer -->
-  <text x="480" y="378" text-anchor="middle" fill="#22D3EE" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5">Everything runs on your PC. Network only for web search, the location lookup and setup downloads.</text>
+  <text x="480" y="378" text-anchor="middle" fill="#22D3EE" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" textLength="640" lengthAdjust="spacingAndGlyphs">Everything runs on your PC. Network only for web search, the location lookup and setup downloads.</text>
 </svg>
