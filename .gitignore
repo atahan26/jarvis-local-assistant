@@ -13,3 +13,5 @@ config.local.yaml
 
 .venv/
 data/
+memory.json
+*.jsonl

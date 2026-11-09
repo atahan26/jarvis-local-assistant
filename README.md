@@ -65,7 +65,7 @@ Switching `whisper.model` to the smaller `ggml-base.en-q5_1.bin` would take roug
 | `system_volume` | get, set, up, down, mute, unmute |
 | `app_control` | launch, focus, close, status for apps **and websites** (allowlisted, `close` asks first) |
 | `send_hotkey` | allowlisted key combinations, max four keys, asks first |
-| `discord_control` | toggle mute and deafen through keyboard shortcuts (no Discord library, no self-bot) |
+| `discord_control` | toggle mute and deafen by focusing Discord and sending its keyboard shortcuts (Ctrl+Shift+M and Ctrl+Shift+D; set them in Discord's keybind settings if they are not already). No Discord library, no self-bot. It toggles, because Discord does not report state back. |
 | `web_search` | DuckDuckGo, only for current facts |
 | `clipboard` | read, write, clear |
 | `timer` | set, cancel, list; announces itself when it fires |
